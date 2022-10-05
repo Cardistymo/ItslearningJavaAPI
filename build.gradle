@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-client', version: '2.7.3'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.10.0'
+}
+
+test {
+    useJUnitPlatform()
+}
