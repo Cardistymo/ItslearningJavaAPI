@@ -5,11 +5,7 @@ import de.cardistymo.itslearningapi.data.news.lightbulletin.Person;
 
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class NewsUpdate {
 

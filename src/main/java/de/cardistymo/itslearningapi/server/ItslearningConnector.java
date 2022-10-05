@@ -14,42 +14,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class ItslearningConnector {
 
     private static final String CLIENT_ID = "10ae9d30-1853-48ff-81cb-47b58a325685";
     private final String ACCESS_TOKEN;
+    private final Organisation organisation;
 
     public ItslearningConnector(String organisationName, String username, String password) {
         try {
-            Organisation organisation = getOrganisation(organisationName);
+            organisation = getOrganisation(organisationName);
             ACCESS_TOKEN = ItslearningRequests.getAccessToken(organisation.getBaseURL() + "/restapi/oauth2/token", CLIENT_ID, username, password);
-
-            HashMap<Integer, Course> courses = getCourses(organisation);
-            for (Course course : courses.values()) {
-                System.out.println(course.getTitle());
-            }
-
-            for (Task task : getTasks(organisation).values()) {
-                if (courses.containsKey(task.getLocationID())) {
-                    System.out.println(task.getTitle());
-                }
-            }
-
-            for (Notification notification : getNotifications(organisation).values()) {
-                if (notification.getType() != Notification.NotificationType.ASSESSMENT) {
-                    System.out.println(notification.getPublishedBy().getFullName() + " posted: " + notification.getText());
-                }
-            }
-
-            for (NewsUpdate newsUpdate : getNews(organisation).values()) {
-                if (newsUpdate.getPublishedDate().isAfter(LocalDateTime.now().minusDays(7))) {
-                    System.out.println(newsUpdate.getText());
-                    System.out.println(newsUpdate.getPublishedDate());
-                }
-            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -80,7 +56,7 @@ public class ItslearningConnector {
         return new Organisation(stateCode, title, shortName, customerID, orgApiBaseURL, segment, cultureName, showCustomerInDropdownList, isPersonalRestApiEnabled, isFronterUpgradedSite, isParentAppEnabled, baseURL, countryCode);
     }
 
-    private HashMap<Integer, Course> getCourses(Organisation organisation) throws IOException {
+    public HashMap<Integer, Course> getCourses() throws IOException {
         JSONObject jsonObject = ItslearningRequests.execute(organisation.getBaseURL() + "/restapi/personal/courses/v1", Map.of("access_token", ACCESS_TOKEN));
         JSONArray jsonArray = jsonObject.getJSONArray("EntityArray");
 
@@ -107,7 +83,7 @@ public class ItslearningConnector {
         return courses;
     }
 
-    private HashMap<Integer, Task> getTasks(Organisation organisation) throws IOException {
+    public HashMap<Integer, Task> getTasks() throws IOException {
         JSONObject jsonObject = ItslearningRequests.execute(organisation.getBaseURL() + "/restapi/personal/tasks/v1", Map.of("access_token", ACCESS_TOKEN));
         JSONArray jsonArray = jsonObject.getJSONArray("EntityArray");
 
@@ -138,7 +114,7 @@ public class ItslearningConnector {
         return tasks;
     }
 
-    private HashMap<Integer, Notification> getNotifications(Organisation organisation) throws IOException {
+    public HashMap<Integer, Notification> getNotifications() throws IOException {
         JSONObject jsonObject = ItslearningRequests.execute(organisation.getBaseURL() + "/restapi/personal/notifications/v1", Map.of("access_token", ACCESS_TOKEN));
         JSONArray jsonArray = jsonObject.getJSONArray("EntityArray");
 
@@ -164,19 +140,7 @@ public class ItslearningConnector {
         return notifications;
     }
 
-    private static Person getPerson(JSONObject publishedByObject) throws MalformedURLException {
-        String additionalInfo = publishedByObject.getString("AdditionalInfo");
-        int personID = publishedByObject.getInt("PersonId");
-        String firstName = publishedByObject.getString("FirstName");
-        String fullName = publishedByObject.getString("FullName");
-        String lastName = publishedByObject.getString("LastName");
-        URL profileImageURLSmall = Objects.equals(publishedByObject.get("ProfileImageUrlSmall"), null) ? null : new URL(publishedByObject.getString("ProfileImageUrlSmall"));
-        URL profileURL = new URL(publishedByObject.getString("ProfileUrl"));
-        URL profileImageURL = Objects.equals(publishedByObject.get("ProfileImageUrl"), null) ? null : new URL(publishedByObject.getString("ProfileImageUrl"));
-        return new Person(additionalInfo, personID, firstName, fullName, lastName, profileImageURLSmall, profileURL, profileImageURL);
-    }
-
-    private HashMap<Integer, NewsUpdate> getNews(Organisation organisation) throws IOException {
+    public HashMap<Integer, NewsUpdate> getNews() throws IOException {
         JSONObject jsonObject = ItslearningRequests.execute(organisation.getBaseURL() + "/restapi/personal/notifications/stream/v1", Map.of("access_token", ACCESS_TOKEN));
         JSONArray jsonArray = jsonObject.getJSONArray("EntityArray");
 
@@ -232,4 +196,15 @@ public class ItslearningConnector {
         return news;
     }
 
+    private static Person getPerson(JSONObject publishedByObject) throws MalformedURLException {
+        String additionalInfo = publishedByObject.getString("AdditionalInfo");
+        int personID = publishedByObject.getInt("PersonId");
+        String firstName = publishedByObject.getString("FirstName");
+        String fullName = publishedByObject.getString("FullName");
+        String lastName = publishedByObject.getString("LastName");
+        URL profileImageURLSmall = Objects.equals(publishedByObject.get("ProfileImageUrlSmall"), null) ? null : new URL(publishedByObject.getString("ProfileImageUrlSmall"));
+        URL profileURL = new URL(publishedByObject.getString("ProfileUrl"));
+        URL profileImageURL = Objects.equals(publishedByObject.get("ProfileImageUrl"), null) ? null : new URL(publishedByObject.getString("ProfileImageUrl"));
+        return new Person(additionalInfo, personID, firstName, fullName, lastName, profileImageURLSmall, profileURL, profileImageURL);
+    }
 }
