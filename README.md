@@ -3,8 +3,6 @@ A complete Java API for the It's Learning platform
 
 ##### Quickstart
 
-For full API documentation, please visit the [documentation site](https://alexgustafsson.github.io/itslearning/).
-
 ```Java
 public class Main {
     public static void main(String[] args) {
